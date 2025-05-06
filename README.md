@@ -25,6 +25,12 @@ Subsequent messages from same contact will be related to first **open/pending** 
 
 If a contact sent a new message in less than 2 hours interval, and there is no ticket from this contact with **pending/open** status, the newest **closed** ticket will be reopen, instead of creating a new one.
 
+## New Features
+
+- **Paused Queue**: Tickets can now be paused when you need to temporarily stop attending to them. Paused tickets are moved to a dedicated "Paused" queue, allowing for better ticket management.
+
+- **Ticket History**: Every ticket now has a complete history tab, showing all changes made to the ticket, including status changes, agent transfers, and pause/resume actions. This helps track who did what and when.
+
 ## Screenshots
 
 ![](https://github.com/canove/whaticket/raw/master/images/whaticket-queues.gif)
@@ -38,6 +44,8 @@ If a contact sent a new message in less than 2 hours interval, and there is no t
 - Send and receive message ✅
 - Send media (images/audio/documents) ✅
 - Receive media (images/audio/video/documents) ✅
+- Pause tickets for later follow-up ✅ 🆕
+- Track ticket history with detailed logs ✅ 🆕
 
 ## Installation and Usage (Linux Ubuntu - Development)
 

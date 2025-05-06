@@ -262,14 +262,30 @@ const messages = {
         },
       },
       ticketsList: {
-        pendingHeader: "Cola",
-        assignedHeader: "Trabajando en",
-        noTicketsTitle: "¡Nada acá!",
-        connectionTitle: "Conexión que se está utilizando actualmente.",
+        pendingHeader: "Pendientes",
+        assignedHeader: "Atendiendo",
+        pausedHeader: "Pausados",
+        noTicketsTitle: "¡Nada aquí!",
         noTicketsMessage:
-          "No se encontraron tickets con este estado o término de búsqueda",
+          "No se encontró ningún ticket con este estado o término de búsqueda",
+        connectionTitle: "Conexión que se está utilizando actualmente.",
         buttons: {
-          accept: "Acceptar",
+          accept: "Aceptar",
+          pause: "Pausar",
+          resume: "Reanudar",
+        },
+      },
+      ticketLogs: {
+        title: "Historial del Ticket",
+        noLogsMessage: "No se encontraron registros históricos.",
+        events: {
+          statusChange: "Estado cambiado",
+          userChange: "Agente cambiado",
+          pause: "Ticket pausado",
+          resume: "Ticket reanudado",
+          create: "Ticket creado",
+          reopen: "Ticket reabierto",
+          close: "Ticket resuelto"
         },
       },
       newTicketModal: {
@@ -385,6 +401,8 @@ const messages = {
             resolve: "Resolver",
             reopen: "Reabrir",
             accept: "Aceptar",
+            pause: "Pausar",
+            resume: "Reanudar",
           },
         },
       },

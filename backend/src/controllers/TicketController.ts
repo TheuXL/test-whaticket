@@ -6,6 +6,9 @@ import DeleteTicketService from "../services/TicketServices/DeleteTicketService"
 import ListTicketsService from "../services/TicketServices/ListTicketsService";
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
 import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
+import PauseTicketService from "../services/TicketServices/PauseTicketService";
+import ResumeTicketService from "../services/TicketServices/ResumeTicketService";
+import ReopenTicketService from "../services/TicketServices/ReopenTicketService";
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import formatBody from "../helpers/Mustache";
@@ -128,4 +131,40 @@ export const remove = async (
     });
 
   return res.status(200).json({ message: "ticket deleted" });
+};
+
+export const pause = async (req: Request, res: Response): Promise<Response> => {
+  const { ticketId } = req.params;
+  const userId = parseInt(req.user.id, 10);
+
+  try {
+    const ticket = await PauseTicketService({ ticketId: parseInt(ticketId, 10), userId });
+    return res.status(200).json(ticket);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+export const resume = async (req: Request, res: Response): Promise<Response> => {
+  const { ticketId } = req.params;
+  const userId = parseInt(req.user.id, 10);
+
+  try {
+    const ticket = await ResumeTicketService({ ticketId, userId });
+    return res.status(200).json(ticket);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+export const reopen = async (req: Request, res: Response): Promise<Response> => {
+  const { ticketId } = req.params;
+  const userId = parseInt(req.user.id, 10);
+
+  try {
+    const ticket = await ReopenTicketService({ ticketId, userId });
+    return res.status(200).json(ticket);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
 };

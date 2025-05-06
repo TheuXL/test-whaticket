@@ -263,12 +263,28 @@ const messages = {
       ticketsList: {
         pendingHeader: "Aguardando",
         assignedHeader: "Atendendo",
+        pausedHeader: "Pausados",
         noTicketsTitle: "Nada aqui!",
         noTicketsMessage:
           "Nenhum ticket encontrado com esse status ou termo pesquisado",
         connectionTitle: "Conexão que está sendo utilizada atualmente.",
         buttons: {
           accept: "Aceitar",
+          pause: "Pausar",
+          resume: "Despausar",
+        },
+      },
+      ticketLogs: {
+        title: "Histórico do Atendimento",
+        noLogsMessage: "Nenhum registro de histórico encontrado.",
+        events: {
+          statusChange: "Status alterado",
+          userChange: "Atendente alterado",
+          pause: "Ticket pausado",
+          resume: "Ticket despausado",
+          create: "Ticket criado",
+          reopen: "Ticket reaberto",
+          close: "Ticket finalizado"
         },
       },
       newTicketModal: {
@@ -384,6 +400,8 @@ const messages = {
             resolve: "Resolver",
             reopen: "Reabrir",
             accept: "Aceitar",
+            pause: "Pausar",
+            resume: "Despausar",
           },
         },
       },

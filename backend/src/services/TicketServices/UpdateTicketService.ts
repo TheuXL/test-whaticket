@@ -5,6 +5,7 @@ import Ticket from "../../models/Ticket";
 import SendWhatsAppMessage from "../WbotServices/SendWhatsAppMessage";
 import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import ShowTicketService from "./ShowTicketService";
+import RegisterTicketLogService from "./RegisterTicketLogService";
 
 interface TicketData {
   status?: string;
@@ -50,7 +51,6 @@ const UpdateTicketService = async ({
     userId
   });
 
-
   if(whatsappId) {
     await ticket.update({
       whatsappId
@@ -58,6 +58,40 @@ const UpdateTicketService = async ({
   }
 
   await ticket.reload();
+
+  // Registrar o log das alterações
+  if (status && status !== oldStatus) {
+    // Log de mudança de status
+    let description = `Status alterado de ${oldStatus} para ${status}`;
+    let type = "statusChange";
+    
+    // Tipo e descrição específicos para fechamento de ticket
+    if (status === "closed") {
+      description = `Ticket finalizado`;
+      type = "close";
+    }
+    
+    await RegisterTicketLogService({
+      ticketId: ticket.id,
+      userId: userId || ticket.userId,
+      type,
+      oldStatus,
+      newStatus: status,
+      description
+    });
+  }
+
+  if (userId && oldUserId !== userId) {
+    // Log de mudança de usuário
+    await RegisterTicketLogService({
+      ticketId: ticket.id,
+      userId: userId,
+      type: "userChange",
+      oldUserId,
+      newUserId: userId,
+      description: `Ticket transferido para outro atendente`
+    });
+  }
 
   const io = getIO();
 
@@ -67,8 +101,6 @@ const UpdateTicketService = async ({
       ticketId: ticket.id
     });
   }
-
-
 
   io.to(ticket.status)
     .to("notification")

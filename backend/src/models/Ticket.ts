@@ -17,6 +17,7 @@ import Message from "./Message";
 import Queue from "./Queue";
 import User from "./User";
 import Whatsapp from "./Whatsapp";
+import TicketLog from "./TicketLog";
 
 @Table
 class Ticket extends Model<Ticket> {
@@ -74,6 +75,9 @@ class Ticket extends Model<Ticket> {
 
   @HasMany(() => Message)
   messages: Message[];
+
+  @HasMany(() => TicketLog)
+  logs: TicketLog[];
 }
 
 export default Ticket;

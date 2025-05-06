@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
-import { MoreVert, Replay } from "@material-ui/icons";
+import { MoreVert, Replay, PauseCircleOutline, PlayCircleOutline } from "@material-ui/icons";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
@@ -60,6 +60,42 @@ const TicketActionButtons = ({ ticket }) => {
 		}
 	};
 
+	const handlePauseTicket = async () => {
+		setLoading(true);
+		try {
+			await api.post(`/tickets/${ticket.id}/pause`);
+			setLoading(false);
+			history.push("/tickets");
+		} catch (err) {
+			setLoading(false);
+			toastError(err);
+		}
+	};
+
+	const handleResumeTicket = async () => {
+		setLoading(true);
+		try {
+			await api.post(`/tickets/${ticket.id}/resume`);
+			setLoading(false);
+			history.push(`/tickets/${ticket.id}`);
+		} catch (err) {
+			setLoading(false);
+			toastError(err);
+		}
+	};
+
+	const handleReopenTicket = async () => {
+		setLoading(true);
+		try {
+			await api.post(`/tickets/${ticket.id}/reopen`);
+			setLoading(false);
+			history.push(`/tickets/${ticket.id}`);
+		} catch (err) {
+			setLoading(false);
+			toastError(err);
+		}
+	};
+
 	return (
 		<div className={classes.actionButtons}>
 			{ticket.status === "closed" && (
@@ -67,7 +103,7 @@ const TicketActionButtons = ({ ticket }) => {
 					loading={loading}
 					startIcon={<Replay />}
 					size="small"
-					onClick={e => handleUpdateTicketStatus(e, "open", user?.id)}
+					onClick={handleReopenTicket}
 				>
 					{i18n.t("messagesList.header.buttons.reopen")}
 				</ButtonWithSpinner>
@@ -91,6 +127,14 @@ const TicketActionButtons = ({ ticket }) => {
 					>
 						{i18n.t("messagesList.header.buttons.resolve")}
 					</ButtonWithSpinner>
+					<ButtonWithSpinner
+						loading={loading}
+						startIcon={<PauseCircleOutline />}
+						size="small"
+						onClick={handlePauseTicket}
+					>
+						{i18n.t("messagesList.header.buttons.pause")}
+					</ButtonWithSpinner>
 					<IconButton onClick={handleOpenTicketOptionsMenu}>
 						<MoreVert />
 					</IconButton>
@@ -111,6 +155,18 @@ const TicketActionButtons = ({ ticket }) => {
 					onClick={e => handleUpdateTicketStatus(e, "open", user?.id)}
 				>
 					{i18n.t("messagesList.header.buttons.accept")}
+				</ButtonWithSpinner>
+			)}
+			{ticket.status === "paused" && (
+				<ButtonWithSpinner
+					loading={loading}
+					startIcon={<PlayCircleOutline />}
+					size="small"
+					variant="contained"
+					color="primary"
+					onClick={handleResumeTicket}
+				>
+					{i18n.t("messagesList.header.buttons.resume")}
 				</ButtonWithSpinner>
 			)}
 		</div>

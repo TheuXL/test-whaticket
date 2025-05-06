@@ -71,6 +71,15 @@ const useStyles = makeStyles(theme => ({
 		marginLeft: "auto",
 	},
 
+	pausedBadge: {
+		alignSelf: "center",
+		justifySelf: "flex-end",
+		marginRight: 32,
+		marginLeft: "auto",
+		color: theme.palette.background.paper,
+		backgroundColor: theme.palette.info.dark,
+	},
+
 	contactLastMessage: {
 		paddingRight: 20,
 	},
@@ -195,6 +204,13 @@ const TicketListItem = ({ ticket }) => {
 									className={classes.closedBadge}
 									badgeContent={"closed"}
 									color="primary"
+								/>
+							)}
+							{ticket.status === "paused" && (
+								<Badge
+									className={classes.pausedBadge}
+									badgeContent={"paused"}
+									color="default"
 								/>
 							)}
 							{ticket.lastMessage && (

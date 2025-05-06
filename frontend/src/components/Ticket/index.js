@@ -5,12 +5,13 @@ import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 import clsx from "clsx";
 
-import { Paper, makeStyles } from "@material-ui/core";
+import { Paper, makeStyles, Tabs, Tab, Box } from "@material-ui/core";
 
 import ContactDrawer from "../ContactDrawer";
 import MessageInput from "../MessageInput/";
 import TicketHeader from "../TicketHeader";
 import TicketInfo from "../TicketInfo";
+import TicketLogs from "../TicketLogs";
 import TicketActionButtons from "../TicketActionButtons";
 import MessagesList from "../MessagesList";
 import api from "../../services/api";
@@ -73,6 +74,27 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+      style={{ flex: 1, overflowY: "auto" }}
+    >
+      {value === index && (
+        <Box p={1} style={{ height: "100%" }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
 const Ticket = () => {
   const { ticketId } = useParams();
   const history = useHistory();
@@ -82,6 +104,12 @@ const Ticket = () => {
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
+  const [tabValue, setTabValue] = useState(0);
+  const [refreshLogs, setRefreshLogs] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -106,11 +134,19 @@ const Ticket = () => {
   useEffect(() => {
     const socket = openSocket();
 
-    socket.on("connect", () => socket.emit("joinChatBox", ticketId));
+    socket.on("connect", () => {
+      socket.emit("joinChatBox", ticketId);
+      socket.emit("joinTicket", ticketId);
+    });
 
     socket.on("ticket", (data) => {
       if (data.action === "update") {
-        setTicket(data.ticket);
+        setTicket(prevTicket => {
+          if (prevTicket.status !== data.ticket.status) {
+            setRefreshLogs(prev => prev + 1);
+          }
+          return data.ticket;
+        });
       }
 
       if (data.action === "delete") {
@@ -164,12 +200,32 @@ const Ticket = () => {
             <TicketActionButtons ticket={ticket} />
           </div>
         </TicketHeader>
+        <Paper>
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange} 
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+          >
+            <Tab label="Mensagens" />
+            <Tab label="Histórico" />
+          </Tabs>
+        </Paper>
         <ReplyMessageProvider>
-          <MessagesList
-            ticketId={ticketId}
-            isGroup={ticket.isGroup}
-          ></MessagesList>
-          <MessageInput ticketStatus={ticket.status} />
+          <TabPanel value={tabValue} index={0} style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+            <MessagesList
+              ticketId={ticketId}
+              isGroup={ticket.isGroup}
+            />
+            <MessageInput ticketStatus={ticket.status} />
+          </TabPanel>
+          <TabPanel value={tabValue} index={1}>
+            <TicketLogs 
+              ticketId={ticketId} 
+              refresh={refreshLogs}
+            />
+          </TabPanel>
         </ReplyMessageProvider>
       </Paper>
       <ContactDrawer

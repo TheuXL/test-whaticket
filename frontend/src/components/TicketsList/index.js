@@ -152,9 +152,9 @@ const reducer = (state, action) => {
 	}
 };
 
-	const TicketsList = (props) => {
-		const { status, searchParam, showAll, selectedQueueIds, updateCount, style } =
-			props;
+const TicketsList = (props) => {
+	const { status, searchParam, showAll, selectedQueueIds, updateCount, style } =
+		props;
 	const classes = useStyles();
 	const [pageNumber, setPageNumber] = useState(1);
 	const [ticketsList, dispatch] = useReducer(reducer, []);
@@ -179,7 +179,7 @@ const reducer = (state, action) => {
 			type: "LOAD_TICKETS",
 			payload: tickets,
 		});
-	}, [tickets]);
+	}, [tickets, status, searchParam, dispatch]);
 
 	useEffect(() => {
 		const socket = openSocket();
@@ -221,14 +221,48 @@ const reducer = (state, action) => {
 			if (data.action === "delete") {
 				dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
 			}
+			
+			if (data.action === "updateStatus" && shouldUpdateTicket(data.ticket)) {
+				if (data.ticket.status === status) {
+					dispatch({
+						type: "UPDATE_TICKET",
+						payload: data.ticket,
+					});
+				} else {
+					dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
+				}
+			}
 		});
 
 		socket.on("appMessage", data => {
 			if (data.action === "create" && shouldUpdateTicket(data.ticket)) {
-				dispatch({
-					type: "UPDATE_TICKET_UNREAD_MESSAGES",
-					payload: data.ticket,
-				});
+				if (status === "pending" && data.ticket.status === "pending") {
+					dispatch({
+						type: "RESET_UNREAD",
+						payload: data.ticket.id,
+					});
+				}
+				if (status === "open" && data.ticket.status === "open") {
+					dispatch({
+						type: "RESET_UNREAD",
+						payload: data.ticket.id,
+					});
+				}
+				if (status === "paused" && data.ticket.status === "paused") {
+					dispatch({
+						type: "RESET_UNREAD",
+						payload: data.ticket.id,
+					});
+				}
+			}
+
+			if (data.action === "create" && !shouldUpdateTicket(data.ticket)) {
+				if (status === "pending" && !data.ticket.userId) {
+					dispatch({
+						type: "UPDATE_TICKET_UNREAD_MESSAGES",
+						payload: data.ticket,
+					});
+				}
 			}
 		});
 
@@ -244,38 +278,49 @@ const reducer = (state, action) => {
 		return () => {
 			socket.disconnect();
 		};
-	}, [status, searchParam, showAll, user, selectedQueueIds]);
+	}, [status, searchParam, user, showAll, selectedQueueIds]);
 
 	useEffect(() => {
-    if (typeof updateCount === "function") {
-      updateCount(ticketsList.length);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticketsList]);
+		if (typeof updateCount === "function") {
+			updateCount(ticketsList.length);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ticketsList]);
 
 	const loadMore = () => {
 		setPageNumber(prevState => prevState + 1);
 	};
 
-	const handleScroll = e => {
-		if (!hasMore || loading) return;
+	useEffect(() => {
+		const handleScroll = e => {
+			if (!loading && hasMore) {
+				const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+				if (scrollHeight - (scrollTop + 100) < clientHeight) {
+					loadMore();
+				}
+			}
+		};
 
-		const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-
-		if (scrollHeight - (scrollTop + 100) < clientHeight) {
-			e.currentTarget.scrollTop = scrollTop - 100;
-			loadMore();
+		const ticketListDiv = document.getElementById("ticketsList");
+		if (ticketListDiv) {
+			ticketListDiv.addEventListener("scroll", handleScroll);
 		}
-	};
+
+		return () => {
+			if (ticketListDiv) {
+				ticketListDiv.removeEventListener("scroll", handleScroll);
+			}
+		};
+	}, [loading, hasMore]);
 
 	return (
-    <Paper className={classes.ticketsListWrapper} style={style}>
+		<Paper className={classes.ticketsListWrapper} style={style}>
 			<Paper
 				square
 				name="closed"
 				elevation={0}
 				className={classes.ticketsList}
-				onScroll={handleScroll}
+				id="ticketsList"
 			>
 				<List style={{ paddingTop: 0 }}>
 					{ticketsList.length === 0 && !loading ? (
@@ -297,7 +342,7 @@ const reducer = (state, action) => {
 					{loading && <TicketsListSkeleton />}
 				</List>
 			</Paper>
-    </Paper>
+		</Paper>
 	);
 };
 

@@ -259,13 +259,29 @@ const messages = {
         },
       },
       ticketsList: {
-        pendingHeader: "Queue",
-        assignedHeader: "Working on",
+        pendingHeader: "Pending",
+        assignedHeader: "Assigned",
+        pausedHeader: "Paused",
         noTicketsTitle: "Nothing here!",
         noTicketsMessage: "No tickets found with this status or search term.",
-        connectionTitle: "Connection that is currently being used.",
+        connectionTitle: "Connection currently in use.",
         buttons: {
           accept: "Accept",
+          pause: "Pause",
+          resume: "Resume",
+        },
+      },
+      ticketLogs: {
+        title: "Ticket History",
+        noLogsMessage: "No history records found.",
+        events: {
+          statusChange: "Status changed",
+          userChange: "Agent changed",
+          pause: "Ticket paused",
+          resume: "Ticket resumed",
+          create: "Ticket created",
+          reopen: "Ticket reopened",
+          close: "Ticket resolved"
         },
       },
       newTicketModal: {
@@ -380,6 +396,8 @@ const messages = {
             resolve: "Resolve",
             reopen: "Reopen",
             accept: "Accept",
+            pause: "Pause",
+            resume: "Resume",
           },
         },
       },

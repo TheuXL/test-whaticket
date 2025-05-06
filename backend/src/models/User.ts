@@ -20,6 +20,7 @@ import Ticket from "./Ticket";
 import Queue from "./Queue";
 import UserQueue from "./UserQueue";
 import Whatsapp from "./Whatsapp";
+import TicketLog from "./TicketLog";
 
 @Table
 class User extends Model<User> {
@@ -63,6 +64,9 @@ class User extends Model<User> {
 
   @HasMany(() => Ticket)
   tickets: Ticket[];
+
+  @HasMany(() => TicketLog)
+  ticketLogs: TicketLog[];
 
   @BelongsToMany(() => Queue, () => UserQueue)
   queues: Queue[];
