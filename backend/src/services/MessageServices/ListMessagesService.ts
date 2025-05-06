@@ -19,11 +19,10 @@ const ListMessagesService = async ({
   pageNumber = "1",
   ticketId
 }: Request): Promise<Response> => {
+  console.log(`Listando mensagens para o ticket ID: ${ticketId}, página: ${pageNumber}`);
+  
+  // ShowTicketService já faz a verificação e lança o erro apropriado se o ticket não for encontrado
   const ticket = await ShowTicketService(ticketId);
-
-  if (!ticket) {
-    throw new AppError("ERR_NO_TICKET_FOUND", 404);
-  }
 
   // await setMessagesAsRead(ticket);
   const limit = 20;

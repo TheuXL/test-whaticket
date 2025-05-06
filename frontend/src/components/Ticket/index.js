@@ -135,8 +135,10 @@ const Ticket = () => {
     const socket = openSocket();
 
     socket.on("connect", () => {
-      socket.emit("joinChatBox", ticketId);
-      socket.emit("joinTicket", ticketId);
+      if (ticketId && Number(ticketId) > 0) {
+        socket.emit("joinChatBox", ticketId);
+        socket.emit("joinTicket", ticketId);
+      }
     });
 
     socket.on("ticket", (data) => {

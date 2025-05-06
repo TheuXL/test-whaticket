@@ -149,11 +149,27 @@ export const resume = async (req: Request, res: Response): Promise<Response> => 
   const { ticketId } = req.params;
   const userId = parseInt(req.user.id, 10);
 
+  // Validar se o ticketId é um valor válido
+  if (!ticketId) {
+    return res.status(400).json({ error: "ID do ticket não fornecido" });
+  }
+
   try {
-    const ticket = await ResumeTicketService({ ticketId, userId });
+    // Garantir que o ticketId seja um número
+    const parsedTicketId = parseInt(ticketId, 10);
+    
+    if (isNaN(parsedTicketId)) {
+      return res.status(400).json({ error: "ID do ticket inválido" });
+    }
+    
+    const ticket = await ResumeTicketService({ 
+      ticketId: parsedTicketId, 
+      userId 
+    });
+    
     return res.status(200).json(ticket);
   } catch (err: any) {
-    return res.status(400).json({ error: err.message });
+    return res.status(err.statusCode || 400).json({ error: err.message });
   }
 };
 

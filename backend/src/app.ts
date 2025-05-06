@@ -30,9 +30,15 @@ app.use(routes);
 
 app.use(Sentry.Handlers.errorHandler());
 
+// Lista de mensagens de erro que devem ser silenciadas no log
+const silencedErrors: string[] = [];
+
 app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
   if (err instanceof AppError) {
-    logger.warn(err);
+    // Verifica se o erro está na lista de erros silenciados
+    if (!silencedErrors.includes(err.message)) {
+      logger.warn(err);
+    }
     return res.status(err.statusCode).json({ error: err.message });
   }
 

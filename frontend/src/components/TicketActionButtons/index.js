@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
-import { MoreVert, Replay, PauseCircleOutline, PlayCircleOutline } from "@material-ui/icons";
+import { MoreVert, Replay, PauseCircleOutline, PlayCircleOutline, CheckCircle } from "@material-ui/icons";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
@@ -43,14 +43,15 @@ const TicketActionButtons = ({ ticket }) => {
 	const handleUpdateTicketStatus = async (e, status, userId) => {
 		setLoading(true);
 		try {
-			await api.put(`/tickets/${ticket.id}`, {
+			const ticketId = Number(ticket.id);
+			await api.put(`/tickets/${ticketId}`, {
 				status: status,
 				userId: userId || null,
 			});
 
 			setLoading(false);
 			if (status === "open") {
-				history.push(`/tickets/${ticket.id}`);
+				history.push(`/tickets/${ticketId}`);
 			} else {
 				history.push("/tickets");
 			}
@@ -63,7 +64,8 @@ const TicketActionButtons = ({ ticket }) => {
 	const handlePauseTicket = async () => {
 		setLoading(true);
 		try {
-			await api.post(`/tickets/${ticket.id}/pause`);
+			const ticketId = Number(ticket.id);
+			await api.post(`/tickets/${ticketId}/pause`);
 			setLoading(false);
 			history.push("/tickets");
 		} catch (err) {
@@ -75,9 +77,21 @@ const TicketActionButtons = ({ ticket }) => {
 	const handleResumeTicket = async () => {
 		setLoading(true);
 		try {
-			await api.post(`/tickets/${ticket.id}/resume`);
+			const ticketId = Number(ticket.id);
+			
+			// Tentar usando o endpoint normal de resume
+			try {
+				await api.post(`/tickets/${ticketId}/resume`);
+			} catch (resumeError) {
+				// Se falhar, tenta usar o endpoint de update como alternativa
+				await api.put(`/tickets/${ticketId}`, {
+					status: "open",
+					userId: user?.id
+				});
+			}
+			
 			setLoading(false);
-			history.push(`/tickets/${ticket.id}`);
+			history.push("/tickets");
 		} catch (err) {
 			setLoading(false);
 			toastError(err);
@@ -87,9 +101,10 @@ const TicketActionButtons = ({ ticket }) => {
 	const handleReopenTicket = async () => {
 		setLoading(true);
 		try {
-			await api.post(`/tickets/${ticket.id}/reopen`);
+			const ticketId = Number(ticket.id);
+			await api.post(`/tickets/${ticketId}/reopen`);
 			setLoading(false);
-			history.push(`/tickets/${ticket.id}`);
+			history.push(`/tickets/${ticketId}`);
 		} catch (err) {
 			setLoading(false);
 			toastError(err);
@@ -158,16 +173,26 @@ const TicketActionButtons = ({ ticket }) => {
 				</ButtonWithSpinner>
 			)}
 			{ticket.status === "paused" && (
-				<ButtonWithSpinner
-					loading={loading}
-					startIcon={<PlayCircleOutline />}
-					size="small"
-					variant="contained"
-					color="primary"
-					onClick={handleResumeTicket}
-				>
-					{i18n.t("messagesList.header.buttons.resume")}
-				</ButtonWithSpinner>
+				<>
+					<ButtonWithSpinner
+						loading={loading}
+						startIcon={<CheckCircle />}
+						size="small"
+						variant="contained"
+						color="primary"
+						onClick={e => handleUpdateTicketStatus(e, "closed", user?.id)}
+					>
+						{i18n.t("messagesList.header.buttons.resolve")}
+					</ButtonWithSpinner>
+					<ButtonWithSpinner
+						loading={loading}
+						startIcon={<PlayCircleOutline />}
+						size="small"
+						onClick={handleResumeTicket}
+					>
+						{i18n.t("messagesList.header.buttons.resume")}
+					</ButtonWithSpinner>
+				</>
 			)}
 		</div>
 	);
